@@ -1,0 +1,95 @@
+name: Lean_x86_64
+
+on: 
+  release:
+    types: [published]
+  push:
+    branches: 
+      - main
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 检查
+      uses: actions/checkout@main
+
+    - name: 初始化环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        docker rmi `docker images -q`
+        echo "Deleting files, please wait ..."
+        sudo rm -rf \
+          /usr/share/dotnet \
+          /etc/mysql \
+          /etc/php
+        sudo -E apt-get -y purge \
+          azure-cli \
+          ghc* \
+          zulu* \
+          hhvm \
+          llvm* \
+          firefox \
+          google* \
+          dotnet* \
+          powershell \
+          openjdk* \
+          mysql* \
+          php*
+        sudo -E apt-get update
+        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch unzip lib32gcc1 libc6-dev-i386 subversion flex node-uglify gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils  libelf-dev autoconf automake libtool autopoint device-tree-compiler libuv-dev python3.6 zlib1g-dev upx-ucl node-uglify antlr3 gperf
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+
+    - name: 下载源代码
+      env: 
+        REPO_URL: https://github.com/coolsnowwolf/lede
+        REPO_BRANCH: master
+      run: |
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        
+    - name: 配置 & 更新 & 安装 feeds
+      working-directory: ./openwrt
+      run: |
+        sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+        echo '\nhttps://github.com/xiaorouji/openwrt-package.git' > ./feeds.conf.default
+        rm -rf ./package/lean/luci-theme-argon && git clone https://github.com/jerrykuku/luci-theme-argon.git ./package/lean/luci-theme-argon
+        mkdir -p package/lixunhuan
+        git clone https://github.com/lisaac/luci-app-dockerman.git package/lixunhuan/luci-app-dockerman
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
+
+    - name: 自定义配置
+      working-directory: ./openwrt
+      run: |
+      sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
+
+    - name: 自定义配置文件
+      env:
+        CONFIG_FILE: 'base.config'
+      run: |
+      mv $CONFIG_FILE openwrt/.config
+      cd openwrt && make defconfig
+        
+    - name: 下载包文件
+      working-directory: ./openwrt
+      run: |
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: 编译固件
+      working-directory: ./openwrt
+      run: |
+        echo -e "$(nproc) thread build."
+        make -j$(nproc) V=s
+
+    - name : 上传固件与目录
+      uses: actions/upload-artifact@main
+      with:
+        name: Lean
+        path: openwrt/bin
