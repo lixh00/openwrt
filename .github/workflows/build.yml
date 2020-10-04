@@ -51,24 +51,31 @@ jobs:
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         
-    - name: 处理feeds
+    - name: 预处理feeds
       working-directory: ./openwrt
       run: |
         sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
-        echo '\nhttps://github.com/xiaorouji/openwrt-package.git' > ./feeds.conf.default
-        rm -rf ./package/lean/luci-theme-argon && git clone https://github.com/jerrykuku/luci-theme-argon.git ./package/lean/luci-theme-argon
+        echo "src-git xiaorouji https://github.com/xiaorouji/openwrt-package.git" >> ./feeds.conf.default
+        echo "src-git openclash https://github.com/vernesong/OpenClash;master" >> ./feeds.conf.default
+        rm -rf ./package/lean/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git ./package/lean/luci-theme-argon
         mkdir -p package/lixunhuan
         git clone https://github.com/lisaac/luci-app-dockerman.git package/lixunhuan/luci-app-dockerman
+        git clone https://github.com/jerrykuku/luci-app-argon-config.git package/lixunhuan/luci-app-argon-config
+
+    - name: 更新feeds
+      working-directory: ./openwrt
+      run: |
         ./scripts/feeds update -a
-        ./scripts/feeds install -a
         ./scripts/feeds install -a
 
     - name: 自定义设置
       working-directory: ./openwrt
       run: |
-      sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
-      cp ../../base.config ./.config 
-      make defconfig
+        sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
+    
+    - name: 处理编译配置
+      run: |
+        cp config.default ./openwrt/.config
         
     - name: 下载包文件
       working-directory: ./openwrt
