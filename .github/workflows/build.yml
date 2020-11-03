@@ -76,6 +76,7 @@ jobs:
     - name: 处理编译配置
       run: |
         cp config.default ./openwrt/.config
+        echo 'CONFIG_BINFMT_MISC=y' >> target/linux/x86/config-5.4
         
     - name: 下载包文件
       working-directory: ./openwrt
