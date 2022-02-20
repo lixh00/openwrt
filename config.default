@@ -55,7 +55,6 @@ CONFIG_PACKAGE_kmod-ikconfig=y
 CONFIG_PACKAGE_kmod-ipt-extra=y
 # CONFIG_PACKAGE_kmod-ipt-ipsec is not set
 CONFIG_PACKAGE_kmod-ipt-nat6=m
-# CONFIG_PACKAGE_kmod-ipt-offload is not set
 CONFIG_PACKAGE_kmod-iptunnel=m
 CONFIG_PACKAGE_kmod-iptunnel4=m
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
@@ -64,7 +63,6 @@ CONFIG_PACKAGE_kmod-keys-trusted=y
 CONFIG_PACKAGE_kmod-lib-raid6=y
 CONFIG_PACKAGE_kmod-lib-xor=y
 CONFIG_PACKAGE_kmod-lib-zstd=y
-# CONFIG_PACKAGE_kmod-nf-flow is not set
 CONFIG_PACKAGE_kmod-nf-ipvs=y
 CONFIG_PACKAGE_kmod-nf-nat6=m
 CONFIG_PACKAGE_kmod-oid-registry=y
@@ -99,7 +97,6 @@ CONFIG_PACKAGE_luci-app-openclash=y
 # CONFIG_PACKAGE_luci-app-rclone_INCLUDE_rclone-webui is not set
 CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_DNSFORWARDER=y
 CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_DNSPROXY=y
-CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_SHORTCUT_FE=y
 # CONFIG_PACKAGE_luci-app-unblockmusic is not set
 # CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go is not set
 # CONFIG_PACKAGE_luci-app-upnp is not set
