@@ -55,13 +55,9 @@ jobs:
     - name: 预处理feeds
       working-directory: ./openwrt
       run: |
-        sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
-        echo "src-git xiaorouji https://github.com/Lienol/openwrt-package.git" >> ./feeds.conf.default
+        echo "src-git helloworld https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
         echo "src-git openclash https://github.com/vernesong/OpenClash;master" >> ./feeds.conf.default
-        rm -rf ./package/lean/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git ./package/lean/luci-theme-argon
-        mkdir -p package/lixunhuan
-        git clone https://github.com/lisaac/luci-app-dockerman.git package/lixunhuan/luci-app-dockerman
-        git clone https://github.com/jerrykuku/luci-app-argon-config.git package/lixunhuan/luci-app-argon-config
+        mkdir package/openwrt-packages && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git ./package/openwrt-packages/luci-theme-argon
 
     - name: 更新feeds
       working-directory: ./openwrt
@@ -77,11 +73,11 @@ jobs:
     - name: 处理编译配置
       run: |
         cp config.default ./openwrt/.config
-        echo 'CONFIG_BINFMT_MISC=y' >> ./openwrt/target/linux/x86/config-5.4
         
     - name: 下载包文件
       working-directory: ./openwrt
       run: |
+        make defconfig
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
